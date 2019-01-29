@@ -1,0 +1,15 @@
+#! /usr/bin/env bash
+SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SOURCE_DIR" || exit
+source config.sh
+
+YMD="$(date +%F)"
+set -o pipefail
+set -e
+sqlite3 -csv domains.sqlite \
+  "select * from domains;" | \
+  ../../mcn/mcn-tools/default_extract \
+  | sort | uniq \
+  > tmp.list && \
+mv output/* old/ && \
+mv tmp.list output/"$YMD-$DOMAINS"
