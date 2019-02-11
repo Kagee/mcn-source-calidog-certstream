@@ -1,15 +1,16 @@
 #! /usr/bin/env bash
+# A crontab that downloads the list of expired and
+# soon-to-be expired domains from domainname.shop
+# once a dag (22:00)
 SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SOURCE_DIR" || exit
 source config.sh
 
 YMD="$(date +%F)"
-set -o pipefail
-set -e
-sqlite3 -csv domains.sqlite \
-  "select * from domains;" | \
-  ../../mcn/mcn-tools/default_extract \
-  | sort | uniq \
-  > tmp.list && \
-mv output/* old/ && \
-mv tmp.list output/"$YMD-$DOMAINS"
+
+sqlite3 -csv domains.sqlite "select * from domains;" | \
+  "$MCN_TOOLS/default_extract" > ./tmp.list
+mv output/* old/ || true
+cat ./tmp.list old/* | sort | uniq > "$YMD-$DOMAINS"
+mv "$YMD-$DOMAINS" "output/$YMD-$DOMAINS"
+rm -f ./tmp.list

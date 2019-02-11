@@ -1,3 +1,4 @@
 *.sqlite
 *.list
 certstream-python/
+*.sqlite-journal
